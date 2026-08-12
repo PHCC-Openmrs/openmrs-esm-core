@@ -100,7 +100,7 @@ $extraWideWorkspaceWidth: 48.25rem;
 :global(.omrs-breakpoint-gt-tablet) {
   .header {
     position: relative;
-    box-sizing: content-box;
+    box-sizing: border-box;
     border-bottom: 1px solid $text-03;
     background-color: $ui-03;
     height: var(--workspace-header-height);
