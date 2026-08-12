@@ -25,6 +25,17 @@ export function precacheAppShell() {
 }
 
 /**
+ * Deletes the entire OMRS cache (app shell + every import-map-resolved URL cached so far)
+ * and immediately re-precaches the app shell so navigation fallback keeps working.
+ * Called on logout so a subsequent session never gets served content cached for a
+ * previous user/build.
+ */
+export async function clearOmrsCache() {
+  await caches.delete(omrsCacheName);
+  await precacheAppShell();
+}
+
+/**
  * Adds all of the given urls to the default app cache.
  * @param urls An array of URLs to be cached.
  */

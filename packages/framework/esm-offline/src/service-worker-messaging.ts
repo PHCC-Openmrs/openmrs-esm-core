@@ -38,10 +38,24 @@ export interface RegisterDynamicRouteMessage extends OmrsServiceWorkerMessage<'r
   strategy?: OmrsOfflineCachingStrategy;
 }
 
+export interface ClearCacheMessage extends OmrsServiceWorkerMessage<'clearCache'> {}
+
 export type KnownOmrsServiceWorkerMessages =
   | OnImportMapChangedMessage
   | ClearDynamicRoutesMessage
-  | RegisterDynamicRouteMessage;
+  | RegisterDynamicRouteMessage
+  | ClearCacheMessage;
+
+/**
+ * Asks the service worker to drop everything it has cached in Cache Storage
+ * (the OMRS app cache), including precached app shell files and any cached
+ * import-map-resolved bundles/data. Used on logout so a subsequent login
+ * (potentially as a different user) never gets served stale cached content.
+ * @returns A promise which completes when the service worker has cleared its cache.
+ */
+export async function clearOmrsServiceWorkerCache(): Promise<MessageServiceWorkerResult<any>> {
+  return messageOmrsServiceWorker({ type: 'clearCache' });
+}
 
 export interface MessageServiceWorkerResult<T> {
   success: boolean;
