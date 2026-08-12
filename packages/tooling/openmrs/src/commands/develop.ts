@@ -23,19 +23,10 @@ export interface DevelopArgs {
 }
 
 export async function runDevelop(args: DevelopArgs, signal?: AbortSignal) {
-  const {
-    backend,
-    host,
-    port,
-    open,
-    importmap,
-    routes,
-    watchedRoutesPaths,
-    configUrls,
-    configFiles,
-    addCookie,
-    supportOffline,
-  } = args;
+  const { backend, host, port, open, importmap, routes, watchedRoutesPaths, configUrls, configFiles, addCookie } = args;
+  // The dev server never installs a service worker, regardless of the `--support-offline`
+  // flag: a service worker in dev causes local changes to be masked by stale cached bundles.
+  const supportOffline = false;
   const apiUrl = removeTrailingSlash(args.apiUrl);
   const spaPath = removeTrailingSlash(args.spaPath);
   const app = express();
