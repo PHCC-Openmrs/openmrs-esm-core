@@ -65,6 +65,7 @@ export const goBackInHistory = jest.fn();
 /* esm-offline */
 export const useConnectivity = jest.fn().mockReturnValue(true);
 export const subscribeConnectivity = jest.fn();
+export const clearOmrsServiceWorkerCache = jest.fn().mockResolvedValue({ success: true, result: undefined });
 
 /* esm-styleguide */
 export const showNotification = jest.fn();

@@ -4,7 +4,7 @@ import type {
   RegisterDynamicRouteMessage,
 } from '@openmrs/esm-offline';
 import escapeRegExp from 'lodash-es/escapeRegExp';
-import { cacheImportMapReferences } from './caching';
+import { cacheImportMapReferences, clearOmrsCache } from './caching';
 import type { DynamicRouteRegistration } from './storage';
 import { ServiceWorkerDb } from './storage';
 
@@ -12,6 +12,7 @@ const messageHandlers = {
   onImportMapChanged,
   clearDynamicRoutes,
   registerDynamicRoute,
+  clearCache,
 };
 
 async function onImportMapChanged({ importMap }: OnImportMapChangedMessage) {
@@ -20,6 +21,10 @@ async function onImportMapChanged({ importMap }: OnImportMapChangedMessage) {
 
 async function clearDynamicRoutes() {
   await new ServiceWorkerDb().dynamicRouteRegistrations.clear();
+}
+
+async function clearCache() {
+  await clearOmrsCache();
 }
 
 async function registerDynamicRoute({ pattern, url, strategy }: RegisterDynamicRouteMessage) {

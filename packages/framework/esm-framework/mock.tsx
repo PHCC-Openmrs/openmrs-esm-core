@@ -66,6 +66,7 @@ export const goBackInHistory = vi.fn();
 /* esm-offline */
 export const useConnectivity = vi.fn().mockReturnValue(true);
 export const subscribeConnectivity = vi.fn();
+export const clearOmrsServiceWorkerCache = vi.fn().mockResolvedValue({ success: true, result: undefined });
 
 /* esm-styleguide */
 export const showNotification = vi.fn();
