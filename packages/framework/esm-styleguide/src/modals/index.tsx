@@ -4,7 +4,7 @@ import { createGlobalStore } from '@openmrs/esm-state';
 import { getModalRegistration } from '@openmrs/esm-extensions';
 import { reportError } from '@openmrs/esm-error-handling';
 
-type ModalInstanceState = 'NEW' | 'MOUNTED' | 'TO_BE_DELETED';
+type ModalInstanceState = 'NEW' | 'LOADING' | 'MOUNTED' | 'TO_BE_DELETED';
 type ModalSize = 'xs' | 'sm' | 'md' | 'lg';
 
 export interface ModalProps {
@@ -98,13 +98,21 @@ function handleModalStateUpdate({ modalStack, modalContainer }: ModalState) {
     modalStack.forEach((instance, index) => {
       switch (instance.state) {
         case 'NEW': {
+          // Mark as loading synchronously so a modal store update that arrives before
+          // `renderModalIntoDOM` resolves (e.g. another showModal() call stacking a new
+          // instance) doesn't re-enter this branch and mount this instance a second time.
+          instance.state = 'LOADING';
           const modalFrame = createModalFrame({ size: instance.props?.size ?? 'md' });
           instance.container = modalFrame;
           renderModalIntoDOM(modalFrame, instance.modalName, instance.props).then((parcel) => {
             instance.parcel = parcel;
             instance.state = 'MOUNTED';
             modalContainer.prepend(modalFrame);
-            modalFrame.style.visibility = 'unset';
+            // Only reveal this instance if it's still the topmost one - the stack may have
+            // changed while its parcel was loading, in which case a later 'MOUNTED' pass
+            // will already have hidden it appropriately.
+            const isTopmost = modalStore.getState().modalStack[0] === instance;
+            modalFrame.style.visibility = isTopmost ? 'unset' : 'hidden';
           });
           break;
         }
