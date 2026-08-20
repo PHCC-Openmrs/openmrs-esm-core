@@ -57,8 +57,9 @@
 
 .logo {
   margin-bottom: layout.$spacing-08;
-  height: layout.$spacing-11;
-  width: 16rem;
+  height: 8rem;
+  width: auto;
+  max-width: 20rem;
 }
 
 .logoImg {
