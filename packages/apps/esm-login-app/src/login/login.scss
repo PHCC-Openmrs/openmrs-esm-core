@@ -57,8 +57,10 @@
 
 .logo {
   margin-bottom: layout.$spacing-08;
-  height: layout.$spacing-11;
-  width: 16rem;
+  width: 18rem;
+  height: auto;
+  aspect-ratio: 1563 / 505;
+  max-width: 100%;
 }
 
 .logoImg {
