@@ -17,6 +17,8 @@ interface LocationPickerProps {
   defaultLocationUuid?: string;
   locationTag?: string;
   locationsPerRequest?: number;
+  /** When provided, only these location uuids are ever fetched/offered - used to restrict a user to their admin-assigned locations. */
+  restrictToLocationUuids?: Array<string>;
   onChange: (locationUuid?: string) => void;
 }
 
@@ -25,6 +27,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
   defaultLocationUuid,
   locationTag,
   locationsPerRequest = 50,
+  restrictToLocationUuids,
   onChange,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -39,7 +42,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
     loadingNewData,
     error,
     setPage,
-  } = useLocations(locationTag, locationsPerRequest, searchTerm);
+  } = useLocations(locationTag, locationsPerRequest, searchTerm, restrictToLocationUuids);
 
   const locations = useMemo(() => {
     if (defaultLocation && !searchTerm && defaultLocationUuid) {

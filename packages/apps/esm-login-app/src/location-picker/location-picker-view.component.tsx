@@ -61,7 +61,32 @@ const LocationPickerView: React.FC<LocationPickerProps> = ({ hideWelcomeMessage,
     [user],
   );
 
-  const hasNoLocations = !isLoadingLocationCount && locationCount === 0;
+  // The locationbasedaccess module (if installed) writes an admin-assigned, comma-separated
+  // list of location uuids into this user property. Its presence means the user is restricted
+  // to exactly those locations; its absence (the default for every user) means unrestricted.
+  const allowedLocationUuids = useMemo(() => {
+    const raw = userProperties?.locationUuid;
+    if (!raw) {
+      return undefined;
+    }
+    const uuids = raw
+      .split(',')
+      .map((uuid) => uuid.trim())
+      .filter(Boolean);
+    return uuids.length ? uuids : undefined;
+  }, [userProperties]);
+
+  const isRestricted = allowedLocationUuids !== undefined;
+
+  // When restricted, the allowed-locations list (not the unfiltered login-location list) is the
+  // source of truth for "is there only one choice" - otherwise a restricted user could be
+  // auto-logged into an arbitrary location outside their allowed set whenever the overall
+  // installation happens to have exactly one login location, or whenever location choice is
+  // disabled system-wide.
+  const effectiveLocationCount = isRestricted ? allowedLocationUuids.length : locationCount;
+  const effectiveFirstLocationUuid = isRestricted ? allowedLocationUuids[0] : firstLocation?.resource?.id;
+
+  const hasNoLocations = !isLoadingLocationCount && effectiveLocationCount === 0;
 
   const [activeLocation, setActiveLocation] = useState(() => {
     if (currentLocationUuid && hideWelcomeMessage) {
@@ -105,25 +130,28 @@ const LocationPickerView: React.FC<LocationPickerProps> = ({ hideWelcomeMessage,
   useEffect(() => {
     if (isLoadingLocationCount) return;
 
-    if (locationCount === 1 || (!chooseLocation.enabled && locationCount > 0)) {
-      if (firstLocation?.resource?.id) {
-        changeLocation(firstLocation.resource.id, true);
+    if (effectiveLocationCount === 1 || (!chooseLocation.enabled && effectiveLocationCount > 0)) {
+      if (effectiveFirstLocationUuid) {
+        changeLocation(effectiveFirstLocationUuid, true);
       } else {
-        console.error('Expected location data is missing', { firstLocation, locationCount });
+        console.error('Expected location data is missing', { firstLocation, locationCount, allowedLocationUuids });
       }
     }
-  }, [locationCount, isLoadingLocationCount]);
+  }, [effectiveLocationCount, effectiveFirstLocationUuid, isLoadingLocationCount]);
 
-  // Handle cases where the login location is present in the userProperties.
+  // Handle cases where the login location is present in the userProperties. A saved preference
+  // is only honored if the user is unrestricted, or the saved location is still in their
+  // (possibly since-changed) allowed set - otherwise a stale preference from before the
+  // restriction was applied could silently log the user into a disallowed location.
   useEffect(() => {
     if (isUpdateFlow) {
       return;
     }
-    if (defaultLocation && !isSubmitting) {
+    if (defaultLocation && !isSubmitting && (!isRestricted || allowedLocationUuids.includes(defaultLocation))) {
       setActiveLocation(defaultLocation);
       changeLocation(defaultLocation, true);
     }
-  }, [changeLocation, isSubmitting, defaultLocation, isUpdateFlow]);
+  }, [changeLocation, isSubmitting, defaultLocation, isUpdateFlow, isRestricted, allowedLocationUuids]);
 
   const handleSubmit = useCallback(
     (evt: React.FormEvent<HTMLFormElement>) => {
@@ -174,6 +202,7 @@ const LocationPickerView: React.FC<LocationPickerProps> = ({ hideWelcomeMessage,
                 selectedLocationUuid={activeLocation}
                 defaultLocationUuid={userProperties.defaultLocation}
                 locationTag={chooseLocation.useLoginLocationTag && 'Login Location'}
+                restrictToLocationUuids={allowedLocationUuids}
                 onChange={(locationUuid) => setActiveLocation(locationUuid)}
               />
               <div className={styles.footerContainer}>

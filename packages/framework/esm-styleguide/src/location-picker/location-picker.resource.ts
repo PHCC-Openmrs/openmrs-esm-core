@@ -72,9 +72,21 @@ export function useLocationByUuid(locationUuid?: string) {
  *
  * @category API
  */
-export function useLocations(locationTag?: string, count: number = 0, searchQuery: string = ''): LoginLocationData {
+export function useLocations(
+  locationTag?: string,
+  count: number = 0,
+  searchQuery: string = '',
+  restrictToLocationUuids?: Array<string>,
+): LoginLocationData {
   const debouncedSearchQuery = useDebounce(searchQuery);
   function constructUrl(page: number, prevPageData: FetchResponse<LocationResponse>) {
+    // An explicitly-empty restriction means "allowed nowhere" - short-circuit to zero results
+    // without a network call, using the same "no more pages" signal as the pagination-exhausted
+    // case below.
+    if (restrictToLocationUuids && restrictToLocationUuids.length === 0) {
+      return null;
+    }
+
     if (prevPageData) {
       const nextLink = prevPageData.data?.link?.find((link) => link.relation === 'next');
 
@@ -99,16 +111,22 @@ export function useLocations(locationTag?: string, count: number = 0, searchQuer
     let urlSearchParameters = new URLSearchParams();
     urlSearchParameters.append('_summary', 'data');
 
-    if (count) {
-      urlSearchParameters.append('_count', '' + count);
-    }
+    if (restrictToLocationUuids && restrictToLocationUuids.length > 0) {
+      // The whole allowed set is small and known up front, so fetch it in one page rather than
+      // paginating.
+      urlSearchParameters.append('_id', restrictToLocationUuids.join(','));
+    } else {
+      if (count) {
+        urlSearchParameters.append('_count', '' + count);
+      }
 
-    if (page) {
-      urlSearchParameters.append('_getpagesoffset', '' + page * count);
-    }
+      if (page) {
+        urlSearchParameters.append('_getpagesoffset', '' + page * count);
+      }
 
-    if (locationTag) {
-      urlSearchParameters.append('_tag', locationTag);
+      if (locationTag) {
+        urlSearchParameters.append('_tag', locationTag);
+      }
     }
 
     if (typeof debouncedSearchQuery === 'string' && debouncedSearchQuery !== '') {
