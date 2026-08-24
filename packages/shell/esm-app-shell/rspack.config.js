@@ -28,7 +28,7 @@ const openmrsAddCookie = process.env.OMRS_ADD_COOKIE;
 const openmrsApiUrl = removeTrailingSlash(process.env.OMRS_API_URL || '/openmrs');
 const openmrsPublicPath = removeTrailingSlash(process.env.OMRS_PUBLIC_PATH || '/openmrs/spa');
 const openmrsProxyTarget = process.env.OMRS_PROXY_TARGET || 'https://dev3.openmrs.org/';
-const openmrsPageTitle = process.env.OMRS_PAGE_TITLE || 'OpenMRS';
+const openmrsPageTitle = process.env.OMRS_PAGE_TITLE || 'CARE';
 const openmrsFavicon = process.env.OMRS_FAVICON || `${openmrsPublicPath}/favicon.ico`;
 /**
  * Resolves the target environment from OMRS_ENV, falling back to NODE_ENV / build mode.
