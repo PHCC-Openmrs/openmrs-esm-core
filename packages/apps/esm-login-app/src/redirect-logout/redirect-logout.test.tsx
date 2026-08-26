@@ -1,6 +1,6 @@
 import React from 'react';
 import { mutate } from 'swr';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, waitFor } from '@testing-library/react';
 import {
   type FetchResponse,
@@ -29,7 +29,18 @@ const mockUseConnectivity = vi.mocked(useConnectivity);
 const mockUseSession = vi.mocked(useSession);
 
 describe('RedirectLogout', () => {
+  let mockLocationAssign: ReturnType<typeof vi.fn>;
+
+  beforeAll(() => {
+    delete (window as any).location;
+    //@ts-ignore
+    window.location = { assign: vi.fn() };
+    mockLocationAssign = window.location.assign as ReturnType<typeof vi.fn>;
+    window.getOpenmrsSpaBase = () => '/openmrs/spa/';
+  });
+
   beforeEach(() => {
+    mockLocationAssign.mockClear();
     mockUseConnectivity.mockReturnValue(true);
     mockOpenmrsFetch.mockResolvedValue({} as FetchResponse<unknown>);
 
@@ -62,7 +73,8 @@ describe('RedirectLogout', () => {
       authenticated: false,
       sessionId: '',
     });
-    expect(mockNavigate).toHaveBeenCalledWith({ to: '${openmrsSpaBase}/login' });
+    expect(mockLocationAssign).toHaveBeenCalledWith('/openmrs/spa/login');
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   it('should not redirect if the configured provider is `oauth2`', async () => {
@@ -96,7 +108,7 @@ describe('RedirectLogout', () => {
 
     render(<RedirectLogout />);
 
-    expect(mockNavigate).toHaveBeenCalledWith({ to: '${openmrsSpaBase}/login' });
+    expect(mockLocationAssign).toHaveBeenCalledWith('/openmrs/spa/login');
   });
 
   it('should redirect to login if the application is offline', async () => {
@@ -104,7 +116,7 @@ describe('RedirectLogout', () => {
 
     render(<RedirectLogout />);
 
-    expect(mockNavigate).toHaveBeenCalledWith({ to: '${openmrsSpaBase}/login' });
+    expect(mockLocationAssign).toHaveBeenCalledWith('/openmrs/spa/login');
   });
 
   it('should handle logout failure gracefully', async () => {
@@ -146,7 +158,7 @@ describe('RedirectLogout', () => {
     rerender(<RedirectLogout />);
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith({ to: '${openmrsSpaBase}/login' });
+      expect(mockLocationAssign).toHaveBeenCalledWith('/openmrs/spa/login');
     });
   });
 

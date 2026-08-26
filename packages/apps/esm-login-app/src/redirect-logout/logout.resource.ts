@@ -28,6 +28,20 @@ export async function performLogout() {
     // do nothing, silence the user-visible error
   }
 
+  // Clear persisted client storage so config overrides, feature flags, and tooling
+  // state don't leak into the next user's session. Scoped to the `openmrs:` prefix
+  // so keys owned by anything else on the same origin (e.g. the legacy UI, or
+  // import-map-override's dev overrides) are left alone.
+  try {
+    const preserve = new Set(['openmrs:devtools']);
+    Object.keys(localStorage)
+      .filter((key) => key.startsWith('openmrs:') && !preserve.has(key))
+      .forEach((key) => localStorage.removeItem(key));
+    sessionStorage.clear();
+  } catch (_) {
+    // do nothing, silence the user-visible error
+  }
+
   try {
     await refetchCurrentUser();
   } catch (_) {
