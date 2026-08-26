@@ -17,7 +17,9 @@ const RedirectLogout: React.FC = () => {
       } else if (config.provider.type === 'oauth2') {
         // do nothing, do not redirect
       } else {
-        navigate({ to: '${openmrsSpaBase}/login' });
+        // Full document load, not an SPA route change, so every in-memory store
+        // (zustand, module-level state) is torn down and reset on the next login.
+        window.location.assign(`${window.getOpenmrsSpaBase()}login`);
       }
     } else {
       performLogout()
@@ -35,7 +37,7 @@ const RedirectLogout: React.FC = () => {
           } else if (config.provider.type === 'oauth2') {
             // do nothing, do not redirect
           } else {
-            navigate({ to: '${openmrsSpaBase}/login' });
+            window.location.assign(`${window.getOpenmrsSpaBase()}login`);
           }
         })
         .catch((error) => {
