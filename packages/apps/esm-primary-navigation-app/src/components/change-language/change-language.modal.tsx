@@ -24,7 +24,6 @@ export default function ChangeLanguageModal({ close }: ChangeLanguageModalProps)
   const { t } = useTranslation();
   const session = useSession();
   const user = session?.user;
-  const allowedLocales = session?.allowedLocales ?? [];
   const [selectedLocale, setSelectedLocale] = useState(session?.locale);
   const [shouldChangeDefaultLocale, setShouldChangeDefaultLocale] = useState(true);
   const [isChangingLanguage, setIsChangingLanguage] = useState(false);
@@ -50,13 +49,31 @@ export default function ChangeLanguageModal({ close }: ChangeLanguageModalProps)
     }
   }, [user.userProperties, user.uuid, selectedLocale, shouldChangeDefaultLocale]);
 
-  const languageNames = useMemo(
-    () =>
-      Object.fromEntries(
-        allowedLocales.map((locale) => [locale, new Intl.DisplayNames([locale], { type: 'language' }).of(locale)]),
-      ),
-    [allowedLocales],
-  );
+  /**
+   * The session's allowed locales can contain entries this list cannot render. OpenMRS
+   * serializes any entry of the `locale.allowed.list` global property that it fails to parse
+   * as `null`, and entries whose region subtag is ill-formed (`en_GBR`, `ar_Arab`) collapse
+   * onto the bare language tag, so the same tag can arrive more than once. Handing either to
+   * `Intl.DisplayNames` throws, which takes down the whole user menu, so keep only the tags
+   * that actually resolve to a name and let the rest go.
+   */
+  const languageNames = useMemo(() => {
+    const names = new Map<string, string>();
+
+    for (const locale of session?.allowedLocales ?? []) {
+      if (typeof locale !== 'string' || names.has(locale)) {
+        continue;
+      }
+
+      try {
+        names.set(locale, new Intl.DisplayNames([locale], { type: 'language' }).of(locale) ?? locale);
+      } catch (error) {
+        console.warn(`Skipping unusable locale ${JSON.stringify(locale)} from the session's allowed locales`, error);
+      }
+    }
+
+    return names;
+  }, [session?.allowedLocales]);
 
   return (
     <>
@@ -69,13 +86,13 @@ export default function ChangeLanguageModal({ close }: ChangeLanguageModalProps)
             name="Language options"
             onChange={(locale) => setSelectedLocale(locale.toString())}
           >
-            {allowedLocales.map((locale, i) => (
+            {[...languageNames].map(([locale, languageName], i) => (
               <RadioButton
                 className={styles.languageRadioButton}
                 key={`locale-option-${locale}-${i}`}
                 id={`locale-option-${locale}-${i}`}
                 name={locale}
-                labelText={capitalize(languageNames[locale])}
+                labelText={capitalize(languageName)}
                 value={locale}
               />
             ))}

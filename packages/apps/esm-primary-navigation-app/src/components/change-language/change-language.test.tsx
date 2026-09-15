@@ -50,6 +50,26 @@ describe(`Change Language Modal`, () => {
     expect(screen.getByRole('radio', { name: /português/i })).toBeInTheDocument();
   });
 
+  it('should render the allowed locales even when the server sends unusable entries', () => {
+    // What openmrs-care-dev actually returns: a `null` for an entry of the
+    // `locale.allowed.list` global property that OpenMRS could not parse, plus repeats of a
+    // tag whose region subtag was dropped on serialization. Both used to throw out of
+    // `Intl.DisplayNames` and blank the modal behind an error boundary.
+    mockUseSession.mockReturnValue({
+      authenticated: true,
+      user: mockUser as unknown as LoggedInUser,
+      allowedLocales: ['en', 'en', 'fr', 'it', 'it', null, undefined, 'en_GB'] as unknown as Array<string>,
+      locale: 'fr',
+    } as Session);
+
+    render(<ChangeLanguageModal close={vi.fn()} />);
+
+    expect(screen.getByRole('radio', { name: /english/i })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /français/i })).toBeInTheDocument();
+    expect(screen.getAllByRole('radio', { name: /italiano/i })).toHaveLength(1);
+    expect(screen.getAllByRole('radio')).toHaveLength(3);
+  });
+
   it('should close the modal when the cancel button is clicked', async () => {
     const user = userEvent.setup();
     const mockClose = vi.fn();

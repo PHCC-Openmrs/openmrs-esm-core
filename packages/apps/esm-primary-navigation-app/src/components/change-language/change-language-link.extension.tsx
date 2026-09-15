@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, SwitcherItem } from '@carbon/react';
 import { capitalize } from 'lodash-es';
@@ -17,15 +17,25 @@ function ChangeLanguageLink() {
     });
   }, []);
 
-  const languageName = session?.locale
-    ? new Intl.DisplayNames([session.locale], { type: 'language' })
-    : new Intl.DisplayNames(['en'], { type: 'language' });
+  // `Intl.DisplayNames` throws on a locale it can't parse, and this item renders inside the
+  // user menu, so an unusable `session.locale` would take the whole menu down. Fall back to
+  // showing the raw locale instead. See the note in `change-language.modal.tsx`.
+  const languageName = useMemo(() => {
+    const locale = session?.locale ?? 'en';
+
+    try {
+      return new Intl.DisplayNames([locale], { type: 'language' }).of(locale) ?? locale;
+    } catch (error) {
+      console.warn(`Could not resolve a display name for locale ${JSON.stringify(locale)}`, error);
+      return locale;
+    }
+  }, [session?.locale]);
 
   return (
     <SwitcherItem className={styles.panelItemContainer} aria-label={t('changeLanguage', 'Change language')}>
       <div>
         <TranslateIcon size={20} />
-        <p>{capitalize(languageName.of(session?.locale ?? 'en'))}</p>
+        <p>{capitalize(languageName)}</p>
       </div>
       <Button kind="ghost" onClick={launchChangeLanguageModal}>
         {t('change', 'Change')}
