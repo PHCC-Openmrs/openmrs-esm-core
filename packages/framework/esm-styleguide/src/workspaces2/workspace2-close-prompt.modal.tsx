@@ -20,7 +20,10 @@ const Workspace2ClosePromptModal: React.FC<WorkspaceUnsavedChangesModal> = ({
 }) => {
   return (
     <>
-      <ModalHeader closeModal={onCancel} title={getCoreTranslation('discardUnsavedChangesPromptTitle')} />
+      <ModalHeader
+        closeModal={onCancel}
+        title={getCoreTranslation('discardUnsavedChangesPromptTitle', 'Discard unsaved changes?')}
+      />
       <ModalBody>
         {affectedWorkspaceTitles.length === 1 ? (
           <p>
@@ -35,9 +38,11 @@ const Workspace2ClosePromptModal: React.FC<WorkspaceUnsavedChangesModal> = ({
         ) : (
           <>
             <p>
-              {getCoreTranslation('discardUnsavedChangesPromptBodyMultiple', undefined, {
-                count: affectedWorkspaceTitles.length,
-              })}
+              {getCoreTranslation(
+                'discardUnsavedChangesPromptBodyMultiple',
+                '{{count}} workspaces have unsaved changes. Closing them will discard the changes:',
+                { count: affectedWorkspaceTitles.length },
+              )}
             </p>
             <ul className={styles.workspaceList}>
               {affectedWorkspaceTitles.map((title, i) => (
@@ -51,7 +56,7 @@ const Workspace2ClosePromptModal: React.FC<WorkspaceUnsavedChangesModal> = ({
       </ModalBody>
       <ModalFooter>
         <Button kind="secondary" onClick={onCancel}>
-          {getCoreTranslation('keepEditing')}
+          {getCoreTranslation('keepEditing', 'Keep editing')}
         </Button>
         <Button kind="danger" onClick={onConfirm}>
           {getCoreTranslation('discardChanges', 'Discard changes')}

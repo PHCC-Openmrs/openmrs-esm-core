@@ -71,9 +71,10 @@ export function getCoreTranslation(
   defaultText?: string,
   options?: Omit<TOptions, 'ns' | 'defaultValue'>,
 ): string {
-  if (!coreTranslations[key]) {
+  const fallback = defaultText ?? coreTranslations[key];
+  if (!fallback) {
     console.error(`O3 Core Translations does not provide key '${key}'. The key itself is being rendered as text.`);
     return key;
   }
-  return translateFrom('core', key, defaultText ?? coreTranslations[key], options);
+  return translateFrom('core', key, fallback, options);
 }
