@@ -1,7 +1,7 @@
 import React from 'react';
 import { Trans } from 'react-i18next';
 import { ModalHeader, ModalBody, ModalFooter, Button } from '@carbon/react';
-import { getCoreTranslation } from '@openmrs/esm-translations';
+import { getCoreTranslation, translateFrom } from '@openmrs/esm-translations';
 import styles from './workspace2-close-prompt.module.scss';
 
 interface WorkspaceUnsavedChangesModal {
@@ -22,7 +22,7 @@ const Workspace2ClosePromptModal: React.FC<WorkspaceUnsavedChangesModal> = ({
     <>
       <ModalHeader
         closeModal={onCancel}
-        title={getCoreTranslation('discardUnsavedChangesPromptTitle', 'Discard unsaved changes?')}
+        title={translateFrom('core', 'discardUnsavedChangesPromptTitle', 'Discard unsaved changes?')}
       />
       <ModalBody>
         {affectedWorkspaceTitles.length === 1 ? (
@@ -38,7 +38,8 @@ const Workspace2ClosePromptModal: React.FC<WorkspaceUnsavedChangesModal> = ({
         ) : (
           <>
             <p>
-              {getCoreTranslation(
+              {translateFrom(
+                'core',
                 'discardUnsavedChangesPromptBodyMultiple',
                 '{{count}} workspaces have unsaved changes. Closing them will discard the changes:',
                 { count: affectedWorkspaceTitles.length },
@@ -56,7 +57,7 @@ const Workspace2ClosePromptModal: React.FC<WorkspaceUnsavedChangesModal> = ({
       </ModalBody>
       <ModalFooter>
         <Button kind="secondary" onClick={onCancel}>
-          {getCoreTranslation('keepEditing', 'Keep editing')}
+          {translateFrom('core', 'keepEditing', 'Keep editing')}
         </Button>
         <Button kind="danger" onClick={onConfirm}>
           {getCoreTranslation('discardChanges', 'Discard changes')}
