@@ -25,7 +25,7 @@ const AppMenuPanel: React.FC<AppMenuProps> = ({ expanded, hidePanel }) => {
       <div style={{ display: 'inline' }}>
         <HeaderPanel
           className={classNames({ [styles.headerPanel]: expanded })}
-          aria-label="App Menu Panel"
+          aria-label={t('appMenuPanel', 'App Menu Panel')}
           expanded={expanded}
         >
           <ExtensionSlot className={styles.menuLink} name="app-menu-slot" />

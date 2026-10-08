@@ -21,7 +21,7 @@ export function PatientBannerToggleContactDetailsButton({
   return (
     <Button
       className={className}
-      iconDescription="Toggle contact details"
+      iconDescription={getCoreTranslation('toggleContactDetails', 'Toggle contact details')}
       kind="ghost"
       onClick={toggleContactDetails}
       renderIcon={showContactDetails ? ChevronUpIcon : ChevronDownIcon}

@@ -65,6 +65,10 @@ export const Pagination: React.FC<PaginationProps> = ({
             pageSizes={pageSizes}
             totalItems={totalItems}
             onChange={onPageNumberChange}
+            itemsPerPageText={getCoreTranslation('itemsPerPage', 'Items per page:')}
+            itemRangeText={(min, max, total) =>
+              getCoreTranslation('paginationItemRange', '{{min}}–{{max}} of {{total}} items', { min, max, total })
+            }
             pageRangeText={(_, total) =>
               getCoreTranslation('paginationOfPages', 'of {{count}} pages', { count: total })
             }
