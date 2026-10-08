@@ -2,6 +2,7 @@
 import React from 'react';
 import { FormLabel, Tag } from '@carbon/react';
 import { useConfig, usePrimaryIdentifierCode } from '@openmrs/esm-react-utils';
+import { type CoreTranslationKey, getCoreTranslation } from '@openmrs/esm-translations';
 import { type StyleguideConfigObject } from '../../config-schema';
 import styles from './patient-banner-patient-info.module.scss';
 
@@ -16,11 +17,22 @@ interface PatientBannerPatientIdentifiersProps {
   showIdentifierLabel: boolean;
 }
 
+/**
+ * Identifier type names (e.g. "National ID") come from backend metadata. They are passed through
+ * the core translations, using the name itself as key and as fallback, so that names with a core
+ * translation are localized while any other name is displayed unchanged.
+ */
+function translateIdentifierTypeName(name: string | undefined) {
+  return name ? getCoreTranslation(name as CoreTranslationKey, name) : name;
+}
+
 function PrimaryIdentifier({ showIdentifierLabel, type, value }: IdentifiersProps) {
   return (
     <span className={styles.primaryIdentifier}>
       <Tag className={styles.tag} type="gray">
-        {showIdentifierLabel && type?.text && <span className={styles.label}>{type.text}: </span>}
+        {showIdentifierLabel && type?.text && (
+          <span className={styles.label}>{translateIdentifierTypeName(type.text)}: </span>
+        )}
         <span className={styles.value}>{value}</span>
       </Tag>
     </span>
@@ -30,7 +42,7 @@ function PrimaryIdentifier({ showIdentifierLabel, type, value }: IdentifiersProp
 function SecondaryIdentifier({ showIdentifierLabel, type, value }: IdentifiersProps) {
   return (
     <FormLabel className={styles.secondaryIdentifier} id={`patient-banner-identifier-${value}`}>
-      {showIdentifierLabel && <span className={styles.label}>{type?.text}: </span>}
+      {showIdentifierLabel && <span className={styles.label}>{translateIdentifierTypeName(type?.text)}: </span>}
       <span className={styles.value}>{value}</span>
     </FormLabel>
   );

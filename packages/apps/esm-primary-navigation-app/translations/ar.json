@@ -1,14 +1,18 @@
 {
-  "AppMenuTooltip": "App Menu",
-  "cancel": "Cancel",
+  "appMenuPanel": "لوحة قائمة التطبيقات",
+  "AppMenuTooltip": "القائمة",
+  "cancel": "إلغاء",
   "change": "تغيير",
-  "changeDefaultLocale": "Update your default locale",
-  "changeDefaultLocaleExplanation": "Leave this unchecked to change language for this session only",
-  "changeLanguage": "Change language",
-  "changingLanguage": "Changing language",
-  "noPathInDashboardExtension": "Cannot render the dashboard extension without the property \"path\" being set in the configuration schema",
+  "changeDefaultLocale": "تحديث الإعدادات الإقليمية الافتراضية",
+  "changeDefaultLocaleExplanation": "اترك هذا الخيار دون تحديد لتغيير اللغة لهذه الجلسة فقط",
+  "changeLanguage": "تغيير اللغة",
+  "changingLanguage": "جارٍ تغيير اللغة",
+  "noPathInDashboardExtension": "لا يمكن عرض امتداد لوحة المعلومات دون تعيين الخاصية \"path\" في الإعدادات",
   "notifications": "الإشعارات",
-  "userMenu": "User menu",
-  "userMenuOptions": "User menu options",
-  "userMenuTooltip": "My Account"
+  "notificationsPanel": "لوحة الإشعارات",
+  "openMenu": "فتح القائمة",
+  "user": "المستخدم",
+  "userMenu": "قائمة المستخدم",
+  "userMenuOptions": "خيارات قائمة المستخدم",
+  "userMenuTooltip": "حسابي"
 }

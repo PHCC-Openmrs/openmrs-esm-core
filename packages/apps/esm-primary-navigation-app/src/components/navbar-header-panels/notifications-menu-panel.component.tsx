@@ -13,7 +13,7 @@ const NotificationsMenuPanel: React.FC<NotificationsMenuPanelProps> = ({ expande
   const state = useMemo(() => ({ expanded }), [expanded]);
 
   return (
-    <HeaderPanel aria-label="Notifications Panel" expanded={expanded}>
+    <HeaderPanel aria-label={t('notificationsPanel', 'Notifications Panel')} expanded={expanded}>
       <h1 className={styles.heading}>{t('notifications', 'Notifications')}</h1>
       <ExtensionSlot name="notifications-nav-menu-slot" state={state} />
     </HeaderPanel>

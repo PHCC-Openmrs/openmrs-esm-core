@@ -1,4 +1,5 @@
 {
+  "appMenuPanel": "App Menu Panel",
   "AppMenuTooltip": "App Menu",
   "cancel": "Cancel",
   "change": "Change",
@@ -8,6 +9,9 @@
   "changingLanguage": "Changing language",
   "noPathInDashboardExtension": "Cannot render the dashboard extension without the property \"path\" being set in the configuration schema",
   "notifications": "Notifications",
+  "notificationsPanel": "Notifications Panel",
+  "openMenu": "Open menu",
+  "user": "User",
   "userMenu": "User menu",
   "userMenuOptions": "User menu options",
   "userMenuTooltip": "My Account"

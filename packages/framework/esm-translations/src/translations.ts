@@ -75,12 +75,18 @@ export const coreTranslations = {
   errorLoadingLoginLocations:
     'Unable to load login locations. Please try again or contact support if the problem persists.',
   female: 'Female',
+  itemsPerPage: 'Items per page:',
   leftNavigation: 'Left navigation',
   loading: 'Loading',
   male: 'Male',
+  // Patient identifier type name (metadata from the backend)
+  'National ID': 'National ID',
   noResultsToDisplay: 'No results to display',
   notAvailable: 'Not available',
+  // Patient identifier type name (metadata from the backend)
+  'OpenMRS ID': 'OpenMRS ID',
   other: 'Other',
+  paginationItemRange: '{{min}}–{{max}} of {{total}} items',
   paginationItemsCount: '{{pageItemsCount}} / {{totalItems}} items',
   paginationOfPages: 'of {{count}} pages',
   patientAvatarAlt: 'Avatar for {{patientName}}',
@@ -88,6 +94,8 @@ export const coreTranslations = {
   patientLists: 'Patient lists',
   patientPhotoAlt: 'Profile photo of {{patientName}}',
   patientPhotoPlaceholder: 'Photo placeholder for {{patientName}}',
+  // Person attribute type name (metadata from the backend)
+  'Phone Number': 'Phone Number',
   print: 'Print',
   printError: 'Print error',
   printErrorExplainer: 'An error occurred in {{errorLocation}}',
@@ -108,6 +116,7 @@ export const coreTranslations = {
   showLess: 'Show less',
   showMore: 'Show more',
   snackbarNotification: 'Snackbar notification',
+  toggleContactDetails: 'Toggle contact details',
   toggleDevTools: 'Toggle dev tools',
   unknown: 'Unknown',
   yearAbbreviation: 'yr',

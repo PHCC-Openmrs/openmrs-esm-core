@@ -9,6 +9,7 @@ import {
   useSession,
 } from '@openmrs/esm-framework';
 import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router-dom';
 import { isDesktop } from '../../utils';
 import Logo from '../logo/logo.component';
@@ -17,6 +18,7 @@ import SideMenuPanel from '../navbar-header-panels/side-menu-panel.component';
 import styles from './navbar.scss';
 
 const HeaderItems: React.FC = () => {
+  const { t } = useTranslation();
   const config = useConfig();
   const [activeHeaderPanel, setActiveHeaderPanel] = useState<string>(null);
   const layout = useLayoutType();
@@ -45,7 +47,7 @@ const HeaderItems: React.FC = () => {
       <Header aria-label="OpenMRS" className={styles.topNavHeader}>
         {showHamburger && (
           <HeaderMenuButton
-            aria-label="Open menu"
+            aria-label={t('openMenu', 'Open menu')}
             isCollapsible
             className={styles.headerMenuButton}
             onClick={() => {
