@@ -296,6 +296,46 @@ describe('import-maps', () => {
       expect(map.imports['@openmrs/esm-remote']).toBe('/remote.js');
     });
 
+    it('fetches a remote import map once per page load, however often it is asked for', async () => {
+      const script = document.createElement('script');
+      script.type = 'systemjs-importmap';
+      Object.defineProperty(script, 'src', { value: 'http://localhost/importmap.json', writable: false });
+      document.head.appendChild(script);
+
+      fetchMock.mockResponse(JSON.stringify({ imports: { '@openmrs/esm-remote': '/remote.js' } }));
+
+      const { setupImportMapOverrides, getCurrentPageMap, getImportMapNextPageMap } = await import('./import-maps');
+      setupImportMapOverrides();
+
+      // modules load in parallel, so the first calls arrive before any fetch has finished
+      const maps = await Promise.all([getCurrentPageMap(), getCurrentPageMap(), getCurrentPageMap()]);
+      await getCurrentPageMap();
+      expect(maps.map((map) => map.imports['@openmrs/esm-remote'])).toEqual(['/remote.js', '/remote.js', '/remote.js']);
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+
+      // what the next page load gets is fetched anew
+      await getImportMapNextPageMap();
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    });
+
+    it('fetches a remote import map again after a failed fetch', async () => {
+      const script = document.createElement('script');
+      script.type = 'systemjs-importmap';
+      Object.defineProperty(script, 'src', { value: 'http://localhost/importmap.json', writable: false });
+      document.head.appendChild(script);
+
+      fetchMock.mockRejectOnce(new Error('offline'));
+      fetchMock.mockResponseOnce(JSON.stringify({ imports: { '@openmrs/esm-remote': '/remote.js' } }));
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      const { setupImportMapOverrides, getCurrentPageMap } = await import('./import-maps');
+      setupImportMapOverrides();
+
+      expect((await getCurrentPageMap()).imports['@openmrs/esm-remote']).toBeUndefined();
+      expect((await getCurrentPageMap()).imports['@openmrs/esm-remote']).toBe('/remote.js');
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    });
+
     it('getImportMapNextPageMap does not include overrides added after setup in getCurrentPageMap', async () => {
       setDomImportMaps([{ imports: { '@openmrs/esm-foo': '/foo.js' } }]);
 
