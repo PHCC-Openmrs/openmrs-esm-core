@@ -12,12 +12,28 @@ let devMode = false;
 // getCurrentPageMap returns the overrides as they were when the page loaded).
 let initialOverrideSnapshot: ImportMap | null = null;
 
+// Fetched import map files, by URL. Every importDynamic() asks for the import map, and the server
+// serves importmap.json with no-store, so without this a single page load fetched it ~30 times.
+// The page keeps running the build it loaded with, so one fetch per page load is all it needs.
+const fetchedMaps = new Map<string, Promise<ImportMap>>();
+
+function fetchMap(src: string, fresh: boolean): Promise<ImportMap> {
+  let map = fresh ? undefined : fetchedMaps.get(src);
+  if (!map) {
+    map = fetch(src).then((response) => response.json());
+    fetchedMaps.set(src, map);
+    // a failed fetch is retried by the next caller instead of being remembered
+    map.catch(() => fetchedMaps.get(src) === map && fetchedMaps.delete(src));
+  }
+  return map;
+}
+
 /**
  * Reads all `<script type="systemjs-importmap">` tags from the DOM and merges
- * them into a single {@link ImportMap}. Tags with a `src` attribute are fetched;
- * inline tags have their `textContent` parsed as JSON.
+ * them into a single {@link ImportMap}. Tags with a `src` attribute are fetched
+ * (once per page load, unless `fresh`); inline tags have their `textContent` parsed as JSON.
  */
-async function readBaseMap(): Promise<ImportMap> {
+async function readBaseMap(fresh = false): Promise<ImportMap> {
   const scripts = document.querySelectorAll<HTMLScriptElement>('script[type="systemjs-importmap"]');
   const maps: ImportMap[] = [];
 
@@ -25,8 +41,7 @@ async function readBaseMap(): Promise<ImportMap> {
     const script = scripts[i];
     try {
       if (script.src) {
-        const response = await fetch(script.src);
-        maps.push(await response.json());
+        maps.push(await fetchMap(script.src, fresh));
       } else if (script.textContent) {
         maps.push(JSON.parse(script.textContent));
       }
@@ -100,10 +115,11 @@ export async function getImportMapDefaultMap(): Promise<ImportMap> {
  * In production, this is the same as the base map.
  */
 export async function getImportMapNextPageMap(): Promise<ImportMap> {
+  // the next page load fetches the import map anew, so this must not answer from the cache
   if (!devMode) {
-    return readBaseMap();
+    return readBaseMap(true);
   }
-  const base = await readBaseMap();
+  const base = await readBaseMap(true);
   return mergeMaps([base, readOverrideMap()]);
 }
 
